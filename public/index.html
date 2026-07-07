@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Steamroller - By LasBoi</title>
+    
+    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+</head>
+<body>
+    
+    <div class="top-bar">
+        <button id="restart-btn"><i class="fa-solid fa-arrow-left"></i> RESTART</button>
+        <a id="logout-btn" href="/logout">LOG OUT</a>
+    </div>
+    
+    <h1>The Steamroller</h1>
+    <p id="osrs-subtitle" class="subtitle osrs-wave"></p>
+
+    <div id="login-section">
+        <div class="description-box">
+            <p>Can't decide what to play? <strong>The Steamroller</strong> turns your endless Steam backlog into a game of roulette.</p>
+            <p>Log in securely, filter your library by playtime, and let fate decide your next adventure!</p>
+        </div>
+        <a href="/auth/steam" id="steam-custom-btn">
+            <i class="fa-brands fa-steam"></i>
+            <span>LOG IN WITH STEAM</span>
+        </a>
+    </div>
+
+    <div id="app-section" style="display: none;">
+        <h2 id="welcome-message"></h2>
+        
+        <div id="filter-section">
+            <div class="playtime-options">
+                <input type="radio" id="pt-unplayed" name="playtime" value="unplayed" checked>
+                <label for="pt-unplayed" class="playtime-btn">Unplayed (0 hrs)</label>
+
+                <input type="radio" id="pt-under2" name="playtime" value="under2">
+                <label for="pt-under2" class="playtime-btn">Under 2 hrs</label>
+
+                <input type="radio" id="pt-over2" name="playtime" value="over2">
+                <label for="pt-over2" class="playtime-btn">Over 2 hrs</label>
+            </div>
+        </div>
+
+        <button id="fetch-games-btn" class="btn">Fetch Library & Load Case</button>
+        
+        <div id="status-container" style="display: none;">
+            <p id="status-text"></p>
+        </div>
+        
+        <div id="case-container">
+            <div id="center-line"></div>
+            <div id="track"></div>
+        </div>
+        
+        <div>
+            <button id="spin-btn" class="btn btn-success" style="display: none;">OPEN CASE!</button>
+        </div>
+
+        <div id="winner-display"></div>
+        
+        <a id="install-btn" class="btn btn-play" style="display: none;" href="#">Install / Play Game</a>
+    </div>
+
+    <div id="footer">
+        Made with <i class="fa-solid fa-heart"></i> by <a href="https://steamcommunity.com/id/LasBoi/" target="_blank">LasBoi</a>
+    </div>
+
+    <script>
+        const subtitleStr = "What are we playing tonight?";
+        const subtitleEl = document.getElementById('osrs-subtitle');
+        
+        subtitleEl.innerHTML = subtitleStr.split('').map((char, i) => {
+            if(char === ' ') return '&nbsp;';
+            return `<span style="animation-delay: ${i * 0.05}s">${char}</span>`;
+        }).join('');
+
+        const osrsEffects = ['osrs-wave', 'osrs-flash1', 'osrs-glow1', 'osrs-shake'];
+        let currentEffect = 0;
+        setInterval(() => {
+            currentEffect = (currentEffect + 1) % osrsEffects.length;
+            subtitleEl.className = `subtitle ${osrsEffects[currentEffect]}`;
+        }, 4000); 
+
+        let unplayedGames = [];
+        const track = document.getElementById('track');
+        const caseContainer = document.getElementById('case-container');
+        const spinBtn = document.getElementById('spin-btn');
+        const installBtn = document.getElementById('install-btn');
+        const winnerDisplay = document.getElementById('winner-display');
+        const statusContainer = document.getElementById('status-container');
+        const statusText = document.getElementById('status-text');
+        
+        let isSpinning = false;
+
+        const caseAudio = new Audio('/csgo-case-open.mp3');
+        caseAudio.volume = 0.6; 
+
+        fetch('/api/user')
+            .then(res => res.json())
+            .then(data => {
+                if (!data.error) {
+                    document.getElementById('login-section').style.display = 'none';
+                    document.getElementById('app-section').style.display = 'block';
+                    document.getElementById('logout-btn').style.display = 'inline-block';
+                    
+                    const welcomeHtml = `
+                        <img id="avatar" src="${data.photos && data.photos.length > 0 ? data.photos[2].value : ''}" alt="Avatar">
+                        <br>Welcome, ${data.displayName}!
+                    `;
+                    document.getElementById('welcome-message').innerHTML = welcomeHtml;
+                }
+            });
+
+        document.getElementById('fetch-games-btn').addEventListener('click', () => {
+            const playtimeValue = document.querySelector('input[name="playtime"]:checked').value;
+            
+            document.getElementById('welcome-message').style.display = 'none';
+            document.getElementById('filter-section').style.display = 'none'; 
+            document.getElementById('fetch-games-btn').style.display = 'none';
+            document.getElementById('restart-btn').style.display = 'inline-block';
+            
+            statusContainer.style.display = 'block';
+            statusText.className = ""; 
+            statusText.innerText = "Scanning your Steam library...";
+
+            fetch(`/api/games?playtime=${playtimeValue}`)
+                .then(res => res.json())
+                .then(games => {
+                    if (games.error) {
+                        statusText.innerText = games.error;
+                        return;
+                    }
+                    if (games.length === 0) {
+                        statusText.innerText = "Wow! You have 0 games matching this filter!";
+                        return;
+                    }
+
+                    unplayedGames = games;
+                    
+                    statusText.className = "status-styled";
+                    statusText.innerText = `Found ${games.length} games. The case is loaded!`;
+                    
+                    caseContainer.style.display = 'block';
+                    spinBtn.style.display = 'inline-block';
+                    
+                    generateTrack();
+                })
+                .catch(err => {
+                    statusText.className = "";
+                    statusText.innerText = "Error fetching games from server.";
+                });
+        });
+
+        function generateTrack() {
+            track.innerHTML = ''; 
+            track.style.transition = 'none'; 
+            track.style.transform = 'translateX(0)'; 
+            winnerDisplay.innerHTML = '';
+            installBtn.style.display = 'none'; 
+            
+            for (let i = 0; i < 80; i++) {
+                const randomGame = unplayedGames[Math.floor(Math.random() * unplayedGames.length)];
+                const card = document.createElement('div');
+                card.className = 'game-card';
+                
+                const steamBannerUrl = `https://cdn.akamai.steamstatic.com/steam/apps/${randomGame.appid}/header.jpg`;
+                const fallbackUrl = `http://media.steampowered.com/steamcommunity/public/images/apps/${randomGame.appid}/${randomGame.img_icon_url}.jpg`;
+                
+                card.innerHTML = `
+                    <img src="${steamBannerUrl}" onerror="this.src='${fallbackUrl}'" alt="Game Art">
+                    <div class="game-name">${randomGame.name}</div>
+                `;
+                
+                card.dataset.name = randomGame.name;
+                card.dataset.appid = randomGame.appid;
+                
+                track.appendChild(card);
+            }
+        }
+
+        spinBtn.addEventListener('click', () => {
+            if (isSpinning) return;
+            isSpinning = true;
+            spinBtn.disabled = true;
+            installBtn.style.display = 'none'; 
+            winnerDisplay.innerHTML = "Opening...";
+            
+            statusContainer.style.display = 'none';
+
+            caseAudio.currentTime = 0; 
+            caseAudio.play();
+
+            generateTrack();
+
+            setTimeout(() => {
+                const winnerIndex = 64; 
+                const containerWidth = caseContainer.offsetWidth;
+                
+                const winningCard = track.children[winnerIndex];
+                const cardStyle = window.getComputedStyle(winningCard);
+                const dynamicCardWidth = winningCard.offsetWidth + parseFloat(cardStyle.marginLeft) + parseFloat(cardStyle.marginRight);
+                
+                let targetX = (winnerIndex * dynamicCardWidth);
+                targetX -= (containerWidth / 2);
+                targetX += (dynamicCardWidth / 2);
+
+                const randomOffset = Math.floor(Math.random() * (dynamicCardWidth - 40)) - ((dynamicCardWidth - 40) / 2);
+                targetX += randomOffset;
+
+                track.style.transition = 'transform 8s cubic-bezier(0.15, 0.1, 0.1, 1)';
+                track.style.transform = `translateX(-${targetX}px)`;
+
+                setTimeout(() => {
+                    // DEN NYE, BEDRE TEKST!
+                    winnerDisplay.innerHTML = `
+                        <span class="fun-begin-text">LET THE FUN BEGIN</span>
+                        <span class="winner-name">${winningCard.dataset.name}</span>
+                    `;
+                    
+                    confetti({
+                        particleCount: 150,
+                        spread: 100,
+                        origin: { y: 0.6 },
+                        colors: ['#66c0f4', '#ffffff', '#a4d007', '#ff3366']
+                    });
+
+                    installBtn.href = `steam://run/${winningCard.dataset.appid}`;
+                    installBtn.style.display = 'inline-block';
+                    
+                    isSpinning = false;
+                    spinBtn.disabled = false;
+                    spinBtn.innerText = "OPEN ANOTHER CASE!";
+                }, 8000); 
+                
+            }, 50); 
+        });
+
+        document.getElementById('restart-btn').addEventListener('click', () => {
+            if (isSpinning) return;
+
+            document.getElementById('welcome-message').style.display = 'block';
+            document.getElementById('filter-section').style.display = 'block'; 
+            document.getElementById('fetch-games-btn').style.display = 'inline-block';
+            
+            statusContainer.style.display = 'none';
+            statusText.innerText = "";
+            statusText.className = "";
+
+            caseContainer.style.display = 'none';
+            spinBtn.style.display = 'none';
+            winnerDisplay.innerHTML = "";
+            installBtn.style.display = 'none';
+
+            document.getElementById('restart-btn').style.display = 'none';
+        });
+    </script>
+</body>
+</html>
