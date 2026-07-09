@@ -12,8 +12,8 @@
 <body>
     
     <div class="top-bar">
-        <button id="restart-btn"><i class="fa-solid fa-arrow-left"></i> RESTART</button>
-        <a id="logout-btn" href="/logout">LOG OUT</a>
+        <button id="restart-btn" style="display: none;"><i class="fa-solid fa-arrow-left"></i> RESTART</button>
+        <a id="logout-btn" href="/logout" style="display: none;">LOG OUT</a>
     </div>
     
     <h1>The Steamroller</h1>
@@ -52,7 +52,7 @@
             <p id="status-text"></p>
         </div>
         
-        <div id="case-container">
+        <div id="case-container" style="display: none;">
             <div id="center-line"></div>
             <div id="track"></div>
         </div>
@@ -96,6 +96,10 @@
         const statusText = document.getElementById('status-text');
         
         let isSpinning = false;
+        
+        // Nye variabler til at holde styr på animationstiden, så vi kan afbryde dem
+        let spinTimeout1;
+        let spinTimeout2;
 
         const caseAudio = new Audio('/csgo-case-open.mp3');
         caseAudio.volume = 0.6; 
@@ -197,7 +201,8 @@
 
             generateTrack();
 
-            setTimeout(() => {
+            // Gemmer tiden i vores nye variabler
+            spinTimeout1 = setTimeout(() => {
                 const winnerIndex = 64; 
                 const containerWidth = caseContainer.offsetWidth;
                 
@@ -215,8 +220,7 @@
                 track.style.transition = 'transform 8s cubic-bezier(0.15, 0.1, 0.1, 1)';
                 track.style.transform = `translateX(-${targetX}px)`;
 
-                setTimeout(() => {
-                    // DEN NYE, BEDRE TEKST!
+                spinTimeout2 = setTimeout(() => {
                     winnerDisplay.innerHTML = `
                         <span class="fun-begin-text">LET THE FUN BEGIN</span>
                         <span class="winner-name">${winningCard.dataset.name}</span>
@@ -241,8 +245,18 @@
         });
 
         document.getElementById('restart-btn').addEventListener('click', () => {
-            if (isSpinning) return;
+            // STOP ALT! Afbryder spinning, timeouts og lyd, hvis knappen trykkes
+            isSpinning = false;
+            clearTimeout(spinTimeout1);
+            clearTimeout(spinTimeout2);
+            caseAudio.pause();
+            caseAudio.currentTime = 0;
 
+            // Nulstiller selve knappen
+            spinBtn.disabled = false;
+            spinBtn.innerText = "OPEN CASE!";
+
+            // Returnerer skærmen til start (Din originale kode)
             document.getElementById('welcome-message').style.display = 'block';
             document.getElementById('filter-section').style.display = 'block'; 
             document.getElementById('fetch-games-btn').style.display = 'inline-block';
