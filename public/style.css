@@ -4,11 +4,12 @@ body {
     font-family: 'Inter', sans-serif;
     text-align: center;
     margin: 0;
-    padding: 0 20px; /* Fjernet de 50px i bunden herfra */
-    box-sizing: border-box; /* Holder højden stramt på de 100vh */
+    padding: 0 20px; 
+    box-sizing: border-box; 
     background: radial-gradient(circle at top, #2a475e 0%, #1b2838 50%, #171a21 100%);
     color: #c7d5e0;
-    min-height: 100vh;
+    min-height: 100vh; /* Fallback til ældre browsere */
+    min-height: 100dvh; /* Det magiske mobil-fix! (Dynamic Viewport Height) */
     overflow-x: hidden;
     display: flex;
     flex-direction: column;
