@@ -7,10 +7,13 @@ const path = require('path');
 const axios = require('axios');
 
 const app = express();
-const PORT = 3000;
+
+// Ændring 1: Dynamisk port og domæne, der forstår Coolify automatisk
+const PORT = process.env.PORT || 3000;
+const DOMAIN = process.env.COOLIFY_URL || `http://localhost:${PORT}`;
 
 app.use(session({
-    secret: process.env.SESSION_SECRET,
+    secret: process.env.SESSION_SECRET || 'steamroller-fallback-secret',
     resave: false,
     saveUninitialized: false
 }));
@@ -18,10 +21,10 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-// Din API Nøgle er indsat her!
+// Ændring 2: Bruger det rigtige domæne til Steam, afhængig af hvor koden kører
 passport.use(new SteamStrategy({
-    returnURL: `http://localhost:${PORT}/auth/steam/return`,
-    realm: `http://localhost:${PORT}/`,
+    returnURL: `${DOMAIN}/auth/steam/return`,
+    realm: `${DOMAIN}/`,
     apiKey: process.env.STEAM_API_KEY 
   },
   function(identifier, profile, done) {
@@ -61,9 +64,7 @@ app.get('/api/games', async (req, res) => {
     }
 
     const steamId = req.user.id; 
-    // Din API Nøgle er også indsat her!
     const apiKey = process.env.STEAM_API_KEY;
-    
     const playtimeFilter = req.query.playtime || 'unplayed';
     
     try {
@@ -102,6 +103,7 @@ app.get('/logout', (req, res, next) => {
     });
 });
 
-app.listen(PORT, () => {
-    console.log(`Server is running! Open your browser and go to http://localhost:${PORT}`);
+// Ændring 3: Tilføjet '0.0.0.0' så serveren må modtage trafik fra internettet
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Server is running! Live on: ${DOMAIN}`);
 });
