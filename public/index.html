@@ -214,6 +214,14 @@
                 });
         });
 
+        // Gør at man kan trykke "Enter" i søgefeltet
+        document.getElementById('steam-search-input').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                e.preventDefault(); // Forhindrer at siden evt. genindlæser af sig selv
+                document.getElementById('steam-search-btn').click(); // Lader som om brugeren trykkede på knappen
+            }
+        });
+
         document.getElementById('fetch-games-btn').addEventListener('click', () => {
             const playtimeValue = document.querySelector('input[name="playtime"]:checked').value;
             
