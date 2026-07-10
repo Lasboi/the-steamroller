@@ -14,13 +14,12 @@
     <meta property="og:url" content="https://steamroller.lasboi.com/">
     <meta property="og:title" content="The Steamroller | Random Steam Game Picker">
     <meta property="og:description" content="Turn your endless Steam backlog into a game of roulette. Log in, spin the wheel, and find your next adventure!">
+    <meta property="og:image" content="https://steamroller.lasboi.com/the-steamroller.png">
     
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:url" content="https://steamroller.lasboi.com/">
     <meta property="twitter:title" content="The Steamroller | Random Steam Game Picker">
     <meta property="twitter:description" content="Turn your endless Steam backlog into a game of roulette. Log in, spin the wheel, and find your next adventure!">
-
-    <meta property="og:image" content="https://steamroller.lasboi.com/the-steamroller.png">
     <meta property="twitter:image" content="https://steamroller.lasboi.com/the-steamroller.png">
 
     <link rel="stylesheet" href="/style.css">
@@ -46,6 +45,18 @@
             <i class="fa-brands fa-steam"></i>
             <span>LOG IN WITH STEAM</span>
         </a>
+
+        <!-- DEN NYE SØGE SEKTION -->
+        <div class="divider"><span>OR</span></div>
+        <div class="search-section">
+            <p>Don't wanna login?</p>
+            <p class="small-text">Insert your STEAM ID or STEAM community link below</p>
+            <div class="search-box">
+                <input type="text" id="steam-search-input" placeholder="e.g. steamcommunity.com/id/custom_url">
+                <button id="steam-search-btn"><i class="fa-solid fa-magnifying-glass"></i> Search</button>
+            </div>
+            <p id="search-error" style="display: none;"></p>
+        </div>
     </div>
 
     <div id="app-section" style="display: none;">
@@ -114,29 +125,79 @@
         const statusText = document.getElementById('status-text');
         
         let isSpinning = false;
+        let currentSearchSteamId = null; // Gemmer id'et hvis brugeren vælger den manuelle vej
         
-        // Nye variabler til at holde styr på animationstiden, så vi kan afbryde dem
         let spinTimeout1;
         let spinTimeout2;
 
         const caseAudio = new Audio('/csgo-case-open.mp3');
         caseAudio.volume = 0.6; 
 
+        // En lille hjælpefunktion til at vise appen uanset om de logger ind eller søger
+        function showAppSection(data) {
+            document.getElementById('login-section').style.display = 'none';
+            document.getElementById('app-section').style.display = 'block';
+            document.getElementById('logout-btn').style.display = 'inline-block';
+            
+            const welcomeHtml = `
+                <img id="avatar" src="${data.photos && data.photos.length > 0 ? data.photos[2].value : ''}" alt="Avatar">
+                <br>Welcome, ${data.displayName}!
+            `;
+            document.getElementById('welcome-message').innerHTML = welcomeHtml;
+        }
+
+        // Tjekker om de allerede er logget ind
         fetch('/api/user')
             .then(res => res.json())
             .then(data => {
                 if (!data.error) {
-                    document.getElementById('login-section').style.display = 'none';
-                    document.getElementById('app-section').style.display = 'block';
-                    document.getElementById('logout-btn').style.display = 'inline-block';
-                    
-                    const welcomeHtml = `
-                        <img id="avatar" src="${data.photos && data.photos.length > 0 ? data.photos[2].value : ''}" alt="Avatar">
-                        <br>Welcome, ${data.displayName}!
-                    `;
-                    document.getElementById('welcome-message').innerHTML = welcomeHtml;
+                    showAppSection(data);
+                    document.getElementById('logout-btn').innerText = 'LOG OUT';
+                    document.getElementById('logout-btn').href = '/logout';
                 }
             });
+
+        // Håndtering af den nye søge-knap
+        document.getElementById('steam-search-btn').addEventListener('click', () => {
+            const input = document.getElementById('steam-search-input').value.trim();
+            const errorEl = document.getElementById('search-error');
+            const btn = document.getElementById('steam-search-btn');
+
+            if (!input) {
+                errorEl.innerText = "Please enter a Steam ID or link";
+                errorEl.style.display = 'block';
+                return;
+            }
+            
+            errorEl.style.display = 'none';
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Searching...';
+            btn.disabled = true;
+
+            fetch(`/api/search-profile?q=${encodeURIComponent(input)}`)
+                .then(res => res.json())
+                .then(data => {
+                    btn.innerHTML = '<i class="fa-solid fa-magnifying-glass"></i> Search';
+                    btn.disabled = false;
+
+                    if (data.error) {
+                        errorEl.innerText = data.error;
+                        errorEl.style.display = 'block';
+                    } else {
+                        currentSearchSteamId = data.id; // Gem ID til spil-kaldet senere
+                        showAppSection(data);
+                        
+                        // Laver Logout om til Exit, fordi vi ikke har en rigtig log-ind session
+                        document.getElementById('logout-btn').innerText = 'EXIT';
+                        document.getElementById('logout-btn').href = '/'; 
+                    }
+                })
+                .catch(err => {
+                    btn.innerHTML = '<i class="fa-solid fa-magnifying-glass"></i> Search';
+                    btn.disabled = false;
+                    errorEl.innerText = "Couldn't fetch data please try again.";
+                    errorEl.style.display = 'block';
+                });
+        });
 
         document.getElementById('fetch-games-btn').addEventListener('click', () => {
             const playtimeValue = document.querySelector('input[name="playtime"]:checked').value;
@@ -150,7 +211,13 @@
             statusText.className = ""; 
             statusText.innerText = "Scanning your Steam library...";
 
-            fetch(`/api/games?playtime=${playtimeValue}`)
+            // Bygger den rigtige URL, baseret på om de søgte eller loggede ind
+            let fetchUrl = `/api/games?playtime=${playtimeValue}`;
+            if (currentSearchSteamId) {
+                fetchUrl += `&steamid=${currentSearchSteamId}`;
+            }
+
+            fetch(fetchUrl)
                 .then(res => res.json())
                 .then(games => {
                     if (games.error) {
@@ -219,7 +286,6 @@
 
             generateTrack();
 
-            // Gemmer tiden i vores nye variabler
             spinTimeout1 = setTimeout(() => {
                 const winnerIndex = 64; 
                 const containerWidth = caseContainer.offsetWidth;
@@ -263,18 +329,15 @@
         });
 
         document.getElementById('restart-btn').addEventListener('click', () => {
-            // STOP ALT! Afbryder spinning, timeouts og lyd, hvis knappen trykkes
             isSpinning = false;
             clearTimeout(spinTimeout1);
             clearTimeout(spinTimeout2);
             caseAudio.pause();
             caseAudio.currentTime = 0;
 
-            // Nulstiller selve knappen
             spinBtn.disabled = false;
             spinBtn.innerText = "OPEN CASE!";
 
-            // Returnerer skærmen til start (Din originale kode)
             document.getElementById('welcome-message').style.display = 'block';
             document.getElementById('filter-section').style.display = 'block'; 
             document.getElementById('fetch-games-btn').style.display = 'inline-block';
