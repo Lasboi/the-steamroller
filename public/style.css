@@ -1,5 +1,12 @@
+/**
+ * The Steamroller - Main Stylesheet (v1.0)
+ * Handles overall layout, typography, responsive design, and CSS animations
+ * including the core roulette wheel mechanics and classic OSRS text effects.
+ */
+
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
 
+/* --- Base Layout & Global Styles --- */
 body {
     font-family: 'Inter', sans-serif;
     text-align: center;
@@ -8,8 +15,8 @@ body {
     box-sizing: border-box; 
     background: radial-gradient(circle at top, #2a475e 0%, #1b2838 50%, #171a21 100%);
     color: #c7d5e0;
-    min-height: 100vh; /* Fallback til ældre browsere */
-    min-height: 100dvh; /* Det magiske mobil-fix! (Dynamic Viewport Height) */
+    min-height: 100vh; /* Fallback for older browsers */
+    min-height: 100dvh; /* Dynamic Viewport Height prevents unwanted scrolling caused by mobile browser UI */
     overflow-x: hidden;
     display: flex;
     flex-direction: column;
@@ -37,9 +44,12 @@ body {
     transition: all 0.3s ease;
     box-shadow: 0 4px 10px rgba(231, 76, 60, 0.3);
     display: none;
-    margin-left: auto;
+    margin-left: auto; /* Pushes the button to the far right of the flex container */
 }
-#logout-btn:hover { background-color: #c0392b; transform: translateY(-2px); }
+#logout-btn:hover { 
+    background-color: #c0392b; 
+    transform: translateY(-2px); 
+}
 
 #restart-btn {
     padding: 10px 20px;
@@ -54,9 +64,12 @@ body {
     box-shadow: 0 4px 10px rgba(0,0,0,0.3);
     display: none;
 }
-#restart-btn:hover { background-color: #4a7596; transform: translateY(-2px); }
+#restart-btn:hover { 
+    background-color: #4a7596; 
+    transform: translateY(-2px); 
+}
 
-/* --- Typografi --- */
+/* --- Typography & Branding --- */
 h1 {
     display: flex;
     align-items: center;
@@ -71,12 +84,12 @@ h1 {
 }
 
 .main-logo {
-    height: 110px; /* Endnu større til desktop-skærmen */
+    height: 110px; /* Scaled up for high visibility on desktop monitors */
     width: auto;
     filter: drop-shadow(0 4px 10px rgba(0,0,0,0.5)); 
 }
 
-/* --- OSRS TEXT EFFECTS --- */
+/* --- Classic OSRS Text Animations --- */
 .subtitle {
     font-size: 1.5rem;
     font-weight: 900;
@@ -84,21 +97,44 @@ h1 {
     height: 35px;
     letter-spacing: 1px;
 }
-.subtitle span { display: inline-block; }
+.subtitle span { 
+    display: inline-block; 
+}
 
+/* Wave Effect */
 .osrs-wave span { animation: osrsWave 1.2s infinite ease-in-out; color: #66c0f4; }
-@keyframes osrsWave { 0%, 100% { transform: translateY(0); } 25% { transform: translateY(-5px); } 75% { transform: translateY(5px); } }
+@keyframes osrsWave { 
+    0%, 100% { transform: translateY(0); } 
+    25% { transform: translateY(-5px); } 
+    75% { transform: translateY(5px); } 
+}
 
+/* Flash Effect */
 .osrs-flash1 span { animation: osrsFlash1 0.8s infinite steps(2, end); }
-@keyframes osrsFlash1 { 0% { color: #ff0000; } 50% { color: #ffff00; } 100% { color: #ff0000; } }
+@keyframes osrsFlash1 { 
+    0% { color: #ff0000; } 
+    50% { color: #ffff00; } 
+    100% { color: #ff0000; } 
+}
 
+/* Glow Effect */
 .osrs-glow1 span { animation: osrsGlow1 2s infinite ease-in-out; }
-@keyframes osrsGlow1 { 0% { color: #ff0000; text-shadow: 0 0 10px #ff0000; } 50% { color: #ffff00; text-shadow: 0 0 15px #ffff00; } 100% { color: #ff0000; text-shadow: 0 0 10px #ff0000; } }
+@keyframes osrsGlow1 { 
+    0% { color: #ff0000; text-shadow: 0 0 10px #ff0000; } 
+    50% { color: #ffff00; text-shadow: 0 0 15px #ffff00; } 
+    100% { color: #ff0000; text-shadow: 0 0 10px #ff0000; } 
+}
 
+/* Shake Effect */
 .osrs-shake span { animation: osrsShake 0.1s infinite linear; color: #a4d007; }
-@keyframes osrsShake { 0%, 100% { transform: translate(0, 0); } 25% { transform: translate(-2px, 2px); } 50% { transform: translate(2px, -2px); } 75% { transform: translate(-2px, -2px); } }
+@keyframes osrsShake { 
+    0%, 100% { transform: translate(0, 0); } 
+    25% { transform: translate(-2px, 2px); } 
+    50% { transform: translate(2px, -2px); } 
+    75% { transform: translate(-2px, -2px); } 
+}
 
-/* --- Knapper Generelt --- */
+/* --- General Button Styles --- */
 .btn {
     padding: 15px 35px;
     font-size: 18px;
@@ -115,17 +151,41 @@ h1 {
     text-decoration: none;
     display: inline-block;
 }
-.btn:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(102, 192, 244, 0.4); background: linear-gradient(135deg, #4199c6, #2a475e); }
-.btn:disabled { background: #3b5c75; color: #8f98a0; cursor: not-allowed; transform: none; box-shadow: none; }
+.btn:hover { 
+    transform: translateY(-3px); 
+    box-shadow: 0 8px 25px rgba(102, 192, 244, 0.4); 
+    background: linear-gradient(135deg, #4199c6, #2a475e); 
+}
+.btn:disabled { 
+    background: #3b5c75; 
+    color: #8f98a0; 
+    cursor: not-allowed; 
+    transform: none; 
+    box-shadow: none; 
+}
 
+/* Success Button (Opening Case) */
 .btn-success { background: linear-gradient(135deg, #a4d007, #5c7e10); }
-.btn-success:hover { background: linear-gradient(135deg, #8cb506, #4a660d); box-shadow: 0 8px 25px rgba(164, 208, 7, 0.4); }
+.btn-success:hover { 
+    background: linear-gradient(135deg, #8cb506, #4a660d); 
+    box-shadow: 0 8px 25px rgba(164, 208, 7, 0.4); 
+}
 
+/* Play Button (Steam Launch) */
 .btn-play { background: linear-gradient(135deg, #66c0f4, #0078d7); border: 1px solid #66c0f4; }
-.btn-play:hover { background: linear-gradient(135deg, #4199c6, #005a9e); box-shadow: 0 8px 25px rgba(102, 192, 244, 0.5); }
+.btn-play:hover { 
+    background: linear-gradient(135deg, #4199c6, #005a9e); 
+    box-shadow: 0 8px 25px rgba(102, 192, 244, 0.5); 
+}
 
-/* --- Profil & Status Display --- */
-#avatar { border-radius: 50%; box-shadow: 0 0 20px rgba(102, 192, 244, 0.5); border: 4px solid #66c0f4; margin-bottom: 20px; transition: transform 0.3s ease; }
+/* --- Profile Avatar & Status Display --- */
+#avatar { 
+    border-radius: 50%; 
+    box-shadow: 0 0 20px rgba(102, 192, 244, 0.5); 
+    border: 4px solid #66c0f4; 
+    margin-bottom: 20px; 
+    transition: transform 0.3s ease; 
+}
 #avatar:hover { transform: scale(1.05); }
 
 .status-styled {
@@ -143,34 +203,73 @@ h1 {
     letter-spacing: 1px;
 }
 
-/* --- Playtime Filter --- */
-.playtime-options { display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; margin-bottom: 30px; }
+/* --- Playtime Filter Options --- */
+.playtime-options { 
+    display: flex; 
+    justify-content: center; 
+    gap: 15px; 
+    flex-wrap: wrap; 
+    margin-bottom: 30px; 
+}
 .playtime-options input[type="radio"] { display: none; }
 .playtime-btn {
-    background-color: #171a21; border: 2px solid #2a475e; color: #8f98a0;
-    padding: 14px 24px; border-radius: 8px; cursor: pointer; font-size: 16px;
-    font-weight: bold; transition: all 0.3s ease; box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    background-color: #171a21; 
+    border: 2px solid #2a475e; 
+    color: #8f98a0;
+    padding: 14px 24px; 
+    border-radius: 8px; 
+    cursor: pointer; 
+    font-size: 16px;
+    font-weight: bold; 
+    transition: all 0.3s ease; 
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
 }
 .playtime-btn:hover { border-color: #66c0f4; color: #ffffff; }
 .playtime-options input[type="radio"]:checked + .playtime-btn {
-    background: linear-gradient(135deg, #66c0f4, #2a475e); border-color: #66c0f4;
-    color: #ffffff; box-shadow: 0 6px 20px rgba(102, 192, 244, 0.4); transform: translateY(-3px);
+    background: linear-gradient(135deg, #66c0f4, #2a475e); 
+    border-color: #66c0f4;
+    color: #ffffff; 
+    box-shadow: 0 6px 20px rgba(102, 192, 244, 0.4); 
+    transform: translateY(-3px);
 }
 
-/* --- Roulette hjulet --- */
+/* --- Roulette Wheel (Case Container) --- */
 #case-container {
-    position: relative; width: 900px; max-width: 100%; height: 220px; margin: 40px auto;
-    background-color: #0f1215; border: 2px solid #2a475e; border-radius: 12px;
-    overflow: hidden; display: none; box-shadow: 0 15px 35px rgba(0,0,0,0.6), inset 0 0 30px rgba(0,0,0,0.9);
+    position: relative; 
+    width: 900px; 
+    max-width: 100%; 
+    height: 220px; 
+    margin: 40px auto;
+    background-color: #0f1215; 
+    border: 2px solid #2a475e; 
+    border-radius: 12px;
+    overflow: hidden; 
+    display: none; 
+    box-shadow: 0 15px 35px rgba(0,0,0,0.6), inset 0 0 30px rgba(0,0,0,0.9);
 }
-#case-container::before, #case-container::after { content: ''; position: absolute; top: 0; bottom: 0; width: 60px; z-index: 5; pointer-events: none; }
+/* Left and right fade-out gradients over the track */
+#case-container::before, #case-container::after { 
+    content: ''; 
+    position: absolute; 
+    top: 0; 
+    bottom: 0; 
+    width: 60px; 
+    z-index: 5; 
+    pointer-events: none; 
+}
 #case-container::before { left: 0; background: linear-gradient(to right, #0f1215, transparent); }
 #case-container::after { right: 0; background: linear-gradient(to left, #0f1215, transparent); }
 
-/* Pulserende laser i midten */
+/* Pulsing center laser line determining the winner */
 #center-line { 
-    position: absolute; top: 0; bottom: 0; left: 50%; width: 4px; 
-    background-color: #ff3366; transform: translateX(-50%); z-index: 10; 
+    position: absolute; 
+    top: 0; 
+    bottom: 0; 
+    left: 50%; 
+    width: 4px; 
+    background-color: #ff3366; 
+    transform: translateX(-50%); 
+    z-index: 10; 
     box-shadow: 0 0 15px #ff3366, 0 0 30px #ff3366; 
     animation: pulseLaser 0.4s infinite alternate;
 }
@@ -179,21 +278,48 @@ h1 {
     100% { box-shadow: 0 0 20px #ff3366, 0 0 40px #ff3366, 0 0 60px #ff3366; opacity: 1; }
 }
 
-#track { display: flex; height: 100%; align-items: center; transition: transform 7s cubic-bezier(0.15, 0.1, 0.1, 1); transform: translateX(0); }
+#track { 
+    display: flex; 
+    height: 100%; 
+    align-items: center; 
+    transition: transform 7s cubic-bezier(0.15, 0.1, 0.1, 1); 
+    transform: translateX(0); 
+}
 
+/* Individual Game Card within the track */
 .game-card {
-    width: 220px; height: 130px; flex-shrink: 0; margin: 0 10px; background-color: #2a475e;
-    border-bottom: 5px solid #66c0f4; border-radius: 6px; overflow: hidden;
-    display: flex; flex-direction: column; justify-content: center; position: relative;
+    width: 220px; 
+    height: 130px; 
+    flex-shrink: 0; 
+    margin: 0 10px; 
+    background-color: #2a475e;
+    border-bottom: 5px solid #66c0f4; 
+    border-radius: 6px; 
+    overflow: hidden;
+    display: flex; 
+    flex-direction: column; 
+    justify-content: center; 
+    position: relative;
     box-shadow: 0 5px 15px rgba(0,0,0,0.5);
 }
 .game-card img { width: 100%; height: 100%; object-fit: cover; }
-.game-name { position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(transparent, rgba(0,0,0,0.9) 80%); color: white; font-size: 13px; font-weight: 700; padding: 20px 8px 8px 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.game-name { 
+    position: absolute; 
+    bottom: 0; left: 0; right: 0; 
+    background: linear-gradient(transparent, rgba(0,0,0,0.9) 80%); 
+    color: white; 
+    font-size: 13px; 
+    font-weight: 700; 
+    padding: 20px 8px 8px 8px; 
+    white-space: nowrap; 
+    overflow: hidden; 
+    text-overflow: ellipsis; 
+}
 
-/* --- Vinder Tekst Design --- */
+/* --- Winner Announcement Display --- */
 #winner-display { margin-top: 30px; min-height: 100px; }
 
-/* Let the fun begin tekst popper ind */
+/* "Let the fun begin" text pop-in animation */
 .fun-begin-text {
     display: block;
     font-size: 20px;
@@ -207,7 +333,7 @@ h1 {
     animation: slideDownFade 0.5s ease-out forwards;
 }
 
-/* Selve vinder-spillet eksploderer frem */
+/* Winning game title explosion animation */
 .winner-name { 
     display: block; 
     color: #ffffff; 
@@ -217,7 +343,7 @@ h1 {
     margin-top: 10px; 
     opacity: 0;
     animation: epicPop 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-    animation-delay: 0.1s; /* Venter et splitsekund for effekt */
+    animation-delay: 0.1s; /* Slight delay for dramatic effect matching the audio peak */
 }
 
 @keyframes slideDownFade {
@@ -231,7 +357,7 @@ h1 {
     100% { transform: scale(1); opacity: 1; text-shadow: 0 0 20px rgba(102, 192, 244, 0.6); }
 }
 
-/* Custom Steam Login Knap */
+/* --- Custom Steam Login Button --- */
 #steam-custom-btn {
     display: inline-flex; align-items: center; justify-content: center; gap: 15px;
     background: linear-gradient(135deg, #171a21 0%, #0d1014 100%); border: 2px solid #2a475e;
@@ -239,66 +365,13 @@ h1 {
     padding: 16px 40px; border-radius: 8px; margin-top: 25px; transition: all 0.3s ease; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
 }
 #steam-custom-btn i { font-size: 32px; color: #ffffff; transition: color 0.3s ease; }
-#steam-custom-btn:hover { transform: translateY(-5px); border-color: #66c0f4; box-shadow: 0 12px 30px rgba(102, 192, 244, 0.4); background: linear-gradient(135deg, #1b2838 0%, #171a21 100%); }
+#steam-custom-btn:hover { 
+    transform: translateY(-5px); 
+    border-color: #66c0f4; 
+    box-shadow: 0 12px 30px rgba(102, 192, 244, 0.4); 
+    background: linear-gradient(135deg, #1b2838 0%, #171a21 100%); 
+}
 #steam-custom-btn:hover i { color: #66c0f4; }
-
-/* Footeren styres nu af margin-top: auto; */
-#footer { margin-top: auto; padding-top: 60px; padding-bottom: 20px; font-size: 14px; color: #8f98a0; }
-#footer i { color: #ff3366; margin: 0 4px; display: inline-block; animation: heartbeat 1.5s infinite; }
-#footer a { color: #66c0f4; text-decoration: none; font-weight: 800; transition: all 0.3s ease; }
-#footer a:hover { color: #ffffff; text-shadow: 0 0 10px rgba(102, 192, 244, 0.8); }
-@keyframes heartbeat { 0% { transform: scale(1); } 14% { transform: scale(1.2); } 28% { transform: scale(1); } 42% { transform: scale(1.2); } 70% { transform: scale(1); } }
-
-/* =========================================
-   RESPONSIVT DESIGN (MOBIL & TABLET)
-   ========================================= */
-@media (max-width: 768px) {
-    h1 { 
-        font-size: 2.2rem; 
-        margin-top: 10px; 
-        flex-direction: column; /* Dette stykke magi stabler logoet over teksten */
-        gap: 10px; /* Lidt luft mellem det stablede logo og teksten */
-    }
-    
-    .main-logo { 
-        height: 80px; /* Gjort større på mobilen, fordi det nu står flot for sig selv */
-    }
-    
-    .top-bar { padding: 10px; margin-bottom: 10px; }
-    #logout-btn, #restart-btn { padding: 8px 12px; font-size: 12px; }
-    
-    .playtime-btn { padding: 12px 15px; width: 100%; text-align: center; }
-    .playtime-options { gap: 10px; }
-    
-    #case-container { height: 160px; margin: 20px auto; }
-    
-    .game-card { width: 160px; height: 110px; }
-    
-    .fun-begin-text { font-size: 16px; }
-    .winner-name { font-size: 28px; }
-    .status-styled { font-size: 14px; padding: 10px 15px; }
-}
-
-/* --- Beskrivelsesboks på forsiden --- */
-.description-box {
-    max-width: 550px;
-    margin: 0 auto 30px auto;
-    background: rgba(42, 71, 94, 0.4);
-    border: 1px solid #3b5c75;
-    border-radius: 8px;
-    padding: 20px 25px;
-    color: #c7d5e0;
-    font-size: 16px;
-    line-height: 1.6;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-}
-
-.description-box p { margin: 10px 0; }
-.description-box strong { color: #ffffff; font-weight: 900; }
-
-@media (max-width: 768px) {
-    .description-box { font-size: 14px; padding: 15px; margin: 0 15px 25px 15px; }
-}
 
 /* --- Search Section Design --- */
 .divider {
@@ -315,9 +388,7 @@ h1 {
     flex: 1;
     border-bottom: 2px solid #2a475e;
 }
-.divider span {
-    padding: 0 15px;
-}
+.divider span { padding: 0 15px; }
 
 .search-section {
     background: rgba(15, 18, 21, 0.6);
@@ -372,4 +443,72 @@ h1 {
     color: #ff3366 !important;
     margin-top: 15px !important;
     font-size: 14px;
+}
+
+/* --- Front Page Description Box --- */
+.description-box {
+    max-width: 550px;
+    margin: 0 auto 30px auto;
+    background: rgba(42, 71, 94, 0.4);
+    border: 1px solid #3b5c75;
+    border-radius: 8px;
+    padding: 20px 25px;
+    color: #c7d5e0;
+    font-size: 16px;
+    line-height: 1.6;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+.description-box p { margin: 10px 0; }
+.description-box strong { color: #ffffff; font-weight: 900; }
+
+/* --- Footer --- */
+/* Footer is pushed to the bottom using auto margin inherited from the flex body */
+#footer { 
+    margin-top: auto; 
+    padding-top: 60px; 
+    padding-bottom: 20px; 
+    font-size: 14px; 
+    color: #8f98a0; 
+}
+#footer i { color: #ff3366; margin: 0 4px; display: inline-block; animation: heartbeat 1.5s infinite; }
+#footer a { color: #66c0f4; text-decoration: none; font-weight: 800; transition: all 0.3s ease; }
+#footer a:hover { color: #ffffff; text-shadow: 0 0 10px rgba(102, 192, 244, 0.8); }
+@keyframes heartbeat { 
+    0% { transform: scale(1); } 
+    14% { transform: scale(1.2); } 
+    28% { transform: scale(1); } 
+    42% { transform: scale(1.2); } 
+    70% { transform: scale(1); } 
+}
+
+/* =========================================
+   RESPONSIVE DESIGN (MOBILE & TABLET)
+   ========================================= */
+@media (max-width: 768px) {
+    h1 { 
+        font-size: 2.2rem; 
+        margin-top: 10px; 
+        flex-direction: column; /* Stack the logo above the title text */
+        gap: 10px; /* Add spacing between the stacked logo and text */
+    }
+    
+    .main-logo { 
+        height: 80px; /* Slightly larger on mobile as it sits prominently on its own line */
+    }
+    
+    .top-bar { padding: 10px; margin-bottom: 10px; }
+    #logout-btn, #restart-btn { padding: 8px 12px; font-size: 12px; }
+    
+    .playtime-btn { padding: 12px 15px; width: 100%; text-align: center; }
+    .playtime-options { gap: 10px; }
+    
+    #case-container { height: 160px; margin: 20px auto; }
+    
+    .game-card { width: 160px; height: 110px; }
+    
+    .fun-begin-text { font-size: 16px; }
+    .winner-name { font-size: 28px; }
+    .status-styled { font-size: 14px; padding: 10px 15px; }
+
+    .description-box { font-size: 14px; padding: 15px; margin: 0 15px 25px 15px; }
 }

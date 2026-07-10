@@ -4,24 +4,28 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
+    <!-- SEO & Meta Tags -->
     <title>The Steamroller | Random Steam Game Picker & Backlog Roulette</title>
     <meta name="title" content="The Steamroller | Random Steam Game Picker & Backlog Roulette">
     <meta name="description" content="Can't decide what to play? The Steamroller is a random Steam game picker that turns your endless backlog into a fun game of roulette. Filter your library by playtime and let fate decide!">
     <meta name="keywords" content="steam random game picker, steam roulette, steam backlog, what to play on steam, randomizer, unplayed steam games, steam library picker">
     <meta name="author" content="LasBoi">
 
+    <!-- Open Graph (Facebook/Discord previews) -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://steamroller.lasboi.com/">
     <meta property="og:title" content="The Steamroller | Random Steam Game Picker">
     <meta property="og:description" content="Turn your endless Steam backlog into a game of roulette. Log in, spin the wheel, and find your next adventure!">
     <meta property="og:image" content="https://steamroller.lasboi.com/the-steamroller.png">
     
+    <!-- Twitter Cards -->
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:url" content="https://steamroller.lasboi.com/">
     <meta property="twitter:title" content="The Steamroller | Random Steam Game Picker">
     <meta property="twitter:description" content="Turn your endless Steam backlog into a game of roulette. Log in, spin the wheel, and find your next adventure!">
     <meta property="twitter:image" content="https://steamroller.lasboi.com/the-steamroller.png">
 
+    <!-- Stylesheets & External Libraries -->
     <link rel="stylesheet" href="/style.css">
     <link rel="icon" type="image/x-icon" href="/favicon.ico?v=2">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -29,17 +33,20 @@
 </head>
 <body>
     
+    <!-- Top Navigation -->
     <div class="top-bar">
         <button id="restart-btn" style="display: none;"><i class="fa-solid fa-arrow-left"></i> RESTART</button>
         <a id="logout-btn" href="/logout" style="display: none;">LOG OUT</a>
     </div>
     
+    <!-- Main Header -->
     <h1>
         <img src="/logo.png" alt="The Steamroller Logo" class="main-logo">
         The Steamroller
     </h1>
     <p id="osrs-subtitle" class="subtitle osrs-wave"></p>
 
+    <!-- Login & Manual Search Section -->
     <div id="login-section">
         <div class="description-box">
             <p>Can't decide what to play? <strong>The Steamroller</strong> turns your endless Steam backlog into a game of roulette.</p>
@@ -50,7 +57,7 @@
             <span>LOG IN WITH STEAM</span>
         </a>
 
-        <!-- DEN NYE SØGE SEKTION -->
+        <!-- MANUAL STEAM ID SEARCH SECTION -->
         <div class="divider"><span>OR</span></div>
         <div class="search-section">
             <p>Don't wanna login?</p>
@@ -63,6 +70,7 @@
         </div>
     </div>
 
+    <!-- Main Application Interface -->
     <div id="app-section" style="display: none;">
         <h2 id="welcome-message"></h2>
         
@@ -99,36 +107,45 @@
         <a id="install-btn" class="btn btn-play" style="display: none;" href="#">Install / Play Game</a>
     </div>
 
+    <!-- Footer -->
     <div id="footer">
         Made with <i class="fa-solid fa-heart"></i> by <a href="https://steamcommunity.com/id/LasBoi/" target="_blank">LasBoi</a>
     </div>
 
+    <!-- Application Logic -->
     <script>
+        // --- TEXT ANIMATIONS ---
+        
         const subtitleStr = "What are we playing tonight?";
         const subtitleEl = document.getElementById('osrs-subtitle');
         
         let charIndex = 0;
+        // Construct the animated subtitle character by character
         subtitleEl.innerHTML = subtitleStr.split(' ').map(word => {
-            // Vi pakker hele ordet ind i et <i> tag, der forbyder browseren at knække teksten
+            // Wrap the entire word in an <i> tag with nowrap to prevent awkward line breaks on mobile devices
             let wordHtml = `<i style="font-style: normal; white-space: nowrap;">`;
             
-            // Herefter animerer vi hvert bogstav præcis som før
+            // Animate each character individually with a staggered CSS delay
             word.split('').forEach(char => {
                 wordHtml += `<span style="animation-delay: ${charIndex * 0.05}s">${char}</span>`;
                 charIndex++;
             });
             
             wordHtml += `</i>`;
-            charIndex++; // Tæller op for selve mellemrummet, så bølge-rytmen ikke bliver ødelagt
+            charIndex++; // Increment charIndex for the space itself to maintain the wave rhythm
             return wordHtml;
-        }).join(' '); // Sætter ordene sammen igen med et rigtigt mellemrum
+        }).join(' '); // Rejoin the words with an actual space
 
+        // Cycle through classic OSRS text effects every 4 seconds
         const osrsEffects = ['osrs-wave', 'osrs-flash1', 'osrs-glow1', 'osrs-shake'];
         let currentEffect = 0;
         setInterval(() => {
             currentEffect = (currentEffect + 1) % osrsEffects.length;
             subtitleEl.className = `subtitle ${osrsEffects[currentEffect]}`;
         }, 4000); 
+
+
+        // --- STATE & DOM ELEMENTS ---
 
         let unplayedGames = [];
         const track = document.getElementById('track');
@@ -140,15 +157,22 @@
         const statusText = document.getElementById('status-text');
         
         let isSpinning = false;
-        let currentSearchSteamId = null; // Gemmer id'et hvis brugeren vælger den manuelle vej
+        let currentSearchSteamId = null; // Stores the manual Steam ID if the user uses the search bar
         
+        // Timeout references for clearing animations upon early restart
         let spinTimeout1;
         let spinTimeout2;
 
         const caseAudio = new Audio('/csgo-case-open.mp3');
         caseAudio.volume = 0.6; 
 
-        // En lille hjælpefunktion til at vise appen uanset om de logger ind eller søger
+
+        // --- CORE FUNCTIONS & EVENT LISTENERS ---
+
+        /**
+         * Helper function to transition from the login screen to the main app interface
+         * @param {Object} data - Contains the user's displayName and photos array
+         */
         function showAppSection(data) {
             document.getElementById('login-section').style.display = 'none';
             document.getElementById('app-section').style.display = 'block';
@@ -161,7 +185,7 @@
             document.getElementById('welcome-message').innerHTML = welcomeHtml;
         }
 
-        // Tjekker om de allerede er logget ind
+        // Check if the user is already authenticated via an active passport session on load
         fetch('/api/user')
             .then(res => res.json())
             .then(data => {
@@ -172,7 +196,15 @@
                 }
             });
 
-        // Håndtering af den nye søge-knap
+        // Allow triggering the manual search by pressing "Enter" inside the input field
+        document.getElementById('steam-search-input').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                e.preventDefault(); // Prevent accidental form submission
+                document.getElementById('steam-search-btn').click(); // Programmatically trigger the search button
+            }
+        });
+
+        // Handle manual Steam ID / Vanity URL search clicks
         document.getElementById('steam-search-btn').addEventListener('click', () => {
             const input = document.getElementById('steam-search-input').value.trim();
             const errorEl = document.getElementById('search-error');
@@ -201,28 +233,28 @@
                         currentSearchSteamId = data.id; 
                         showAppSection(data);
                         
-                        // Vi laver knappen om til en lækker NEW SEARCH knap
+                        // Morph the top-right button into a quick "NEW SEARCH" reset button
                         const logoutBtn = document.getElementById('logout-btn');
                         logoutBtn.innerHTML = '<i class="fa-solid fa-rotate-left"></i> NEW SEARCH';
                         logoutBtn.href = '#'; 
                         
-                        // Her bygger vi lyn-tilbage funktionen
+                        // Overwrite the click handler to quick-reset the UI without a full page reload
                         logoutBtn.onclick = (e) => {
-                            e.preventDefault(); // Forhindrer browseren i at rulle dumt op
+                            e.preventDefault(); // Prevent scrolling to the top
                             
-                            // Nulstil hjulet og appen i baggrunden, hvis de var nået at trykke "Fetch"
+                            // Reset the roulette wheel and app state if they had progressed
                             document.getElementById('restart-btn').click(); 
                             
-                            // Skift lynhurtigt tilbage til startskærmen
+                            // Swiftly transition back to the login/search screen
                             document.getElementById('app-section').style.display = 'none';
                             document.getElementById('login-section').style.display = 'block';
                             
-                            // Skjul knappen og tøm søgefeltet klar til næste søgning
+                            // Clean up UI state for the next search
                             logoutBtn.style.display = 'none';
                             document.getElementById('steam-search-input').value = '';
                             currentSearchSteamId = null;
                             
-                            // Fjern funktionen igen, så det ikke driller et rigtigt Steam-login
+                            // Remove custom handler to ensure normal behavior for actual authenticated users
                             logoutBtn.onclick = null;
                         };
                     }
@@ -235,17 +267,11 @@
                 });
         });
 
-        // Gør at man kan trykke "Enter" i søgefeltet
-        document.getElementById('steam-search-input').addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') {
-                e.preventDefault(); // Forhindrer at siden evt. genindlæser af sig selv
-                document.getElementById('steam-search-btn').click(); // Lader som om brugeren trykkede på knappen
-            }
-        });
-
+        // Handle fetching the game library and loading the roulette case
         document.getElementById('fetch-games-btn').addEventListener('click', () => {
             const playtimeValue = document.querySelector('input[name="playtime"]:checked').value;
             
+            // UI Transitions
             document.getElementById('welcome-message').style.display = 'none';
             document.getElementById('filter-section').style.display = 'none'; 
             document.getElementById('fetch-games-btn').style.display = 'none';
@@ -255,7 +281,7 @@
             statusText.className = ""; 
             statusText.innerText = "Scanning your Steam library...";
 
-            // Bygger den rigtige URL, baseret på om de søgte eller loggede ind
+            // Construct the correct API fetch URL depending on auth method (Session vs. Manual Search)
             let fetchUrl = `/api/games?playtime=${playtimeValue}`;
             if (currentSearchSteamId) {
                 fetchUrl += `&steamid=${currentSearchSteamId}`;
@@ -289,6 +315,10 @@
                 });
         });
 
+        /**
+         * Populates the roulette track with 80 random game instances from the fetched library.
+         * Resets UI and transform state to prepare for a new spin.
+         */
         function generateTrack() {
             track.innerHTML = ''; 
             track.style.transition = 'none'; 
@@ -301,6 +331,7 @@
                 const card = document.createElement('div');
                 card.className = 'game-card';
                 
+                // Steam CDN URLs for fetching game header images
                 const steamBannerUrl = `https://cdn.akamai.steamstatic.com/steam/apps/${randomGame.appid}/header.jpg`;
                 const fallbackUrl = `http://media.steampowered.com/steamcommunity/public/images/apps/${randomGame.appid}/${randomGame.img_icon_url}.jpg`;
                 
@@ -309,6 +340,7 @@
                     <div class="game-name">${randomGame.name}</div>
                 `;
                 
+                // Store metadata directly on the DOM element for easy access upon winning
                 card.dataset.name = randomGame.name;
                 card.dataset.appid = randomGame.appid;
                 
@@ -316,44 +348,54 @@
             }
         }
 
+        // Handle the core roulette spin logic and animations
         spinBtn.addEventListener('click', () => {
             if (isSpinning) return;
             isSpinning = true;
+            
+            // Lock UI elements during the spin
             spinBtn.disabled = true;
             installBtn.style.display = 'none'; 
             winnerDisplay.innerHTML = "Opening...";
-            
             statusContainer.style.display = 'none';
 
+            // Reset and play the unboxing audio
             caseAudio.currentTime = 0; 
             caseAudio.play();
 
+            // Regenerate track to ensure a fresh, unpredictable sequence
             generateTrack();
 
+            // Slight delay ensures the DOM has fully rendered the new track before math is calculated
             spinTimeout1 = setTimeout(() => {
-                const winnerIndex = 64; 
+                const winnerIndex = 64; // The pre-determined winning index deep into the track
                 const containerWidth = caseContainer.offsetWidth;
                 
                 const winningCard = track.children[winnerIndex];
                 const cardStyle = window.getComputedStyle(winningCard);
                 const dynamicCardWidth = winningCard.offsetWidth + parseFloat(cardStyle.marginLeft) + parseFloat(cardStyle.marginRight);
                 
+                // Calculate precise pixel distance to center the winning card
                 let targetX = (winnerIndex * dynamicCardWidth);
                 targetX -= (containerWidth / 2);
                 targetX += (dynamicCardWidth / 2);
 
+                // Add a random pixel offset so the laser doesn't always land dead-center on the card
                 const randomOffset = Math.floor(Math.random() * (dynamicCardWidth - 40)) - ((dynamicCardWidth - 40) / 2);
                 targetX += randomOffset;
 
+                // Execute the CSS transform
                 track.style.transition = 'transform 8s cubic-bezier(0.15, 0.1, 0.1, 1)';
                 track.style.transform = `translateX(-${targetX}px)`;
 
+                // Conclude the spin upon transition completion (8 seconds)
                 spinTimeout2 = setTimeout(() => {
                     winnerDisplay.innerHTML = `
                         <span class="fun-begin-text">LET THE FUN BEGIN</span>
                         <span class="winner-name">${winningCard.dataset.name}</span>
                     `;
                     
+                    // Trigger the confetti particle effect
                     confetti({
                         particleCount: 150,
                         spread: 100,
@@ -361,9 +403,11 @@
                         colors: ['#66c0f4', '#ffffff', '#a4d007', '#ff3366']
                     });
 
+                    // Activate the deep link to the Steam client
                     installBtn.href = `steam://run/${winningCard.dataset.appid}`;
                     installBtn.style.display = 'inline-block';
                     
+                    // Unlock the UI for consecutive spins
                     isSpinning = false;
                     spinBtn.disabled = false;
                     spinBtn.innerText = "OPEN ANOTHER CASE!";
@@ -372,29 +416,34 @@
             }, 50); 
         });
 
+        // Soft-reset the application state without requiring a full page reload
         document.getElementById('restart-btn').addEventListener('click', () => {
+            // Hard-stop all current animations, timeouts, and audio
             isSpinning = false;
             clearTimeout(spinTimeout1);
             clearTimeout(spinTimeout2);
             caseAudio.pause();
             caseAudio.currentTime = 0;
 
+            // Reset the spin button
             spinBtn.disabled = false;
             spinBtn.innerText = "OPEN CASE!";
 
+            // Restore the initial filter selection UI
             document.getElementById('welcome-message').style.display = 'block';
             document.getElementById('filter-section').style.display = 'block'; 
             document.getElementById('fetch-games-btn').style.display = 'inline-block';
             
+            // Hide the active application elements
             statusContainer.style.display = 'none';
             statusText.innerText = "";
             statusText.className = "";
-
             caseContainer.style.display = 'none';
             spinBtn.style.display = 'none';
             winnerDisplay.innerHTML = "";
             installBtn.style.display = 'none';
 
+            // Hide the restart button itself
             document.getElementById('restart-btn').style.display = 'none';
         });
     </script>
