@@ -71,7 +71,7 @@ h1 {
 }
 
 .main-logo {
-    height: 90px; /* Betydeligt større end vores første forsøg */
+    height: 110px; /* Endnu større til desktop-skærmen */
     width: auto;
     filter: drop-shadow(0 4px 10px rgba(0,0,0,0.5)); 
 }
@@ -256,11 +256,12 @@ h1 {
     h1 { 
         font-size: 2.2rem; 
         margin-top: 10px; 
-        gap: 15px; 
+        flex-direction: column; /* Dette stykke magi stabler logoet over teksten */
+        gap: 10px; /* Lidt luft mellem det stablede logo og teksten */
     }
     
     .main-logo { 
-        height: 55px; /* Skruet op fra 40px, så det også er tydeligere på mobilen */
+        height: 80px; /* Gjort større på mobilen, fordi det nu står flot for sig selv */
     }
     
     .top-bar { padding: 10px; margin-bottom: 10px; }
