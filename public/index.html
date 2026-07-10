@@ -107,10 +107,21 @@
         const subtitleStr = "What are we playing tonight?";
         const subtitleEl = document.getElementById('osrs-subtitle');
         
-        subtitleEl.innerHTML = subtitleStr.split('').map((char, i) => {
-            if(char === ' ') return '&nbsp;';
-            return `<span style="animation-delay: ${i * 0.05}s">${char}</span>`;
-        }).join('');
+        let charIndex = 0;
+        subtitleEl.innerHTML = subtitleStr.split(' ').map(word => {
+            // Vi pakker hele ordet ind i et <i> tag, der forbyder browseren at knække teksten
+            let wordHtml = `<i style="font-style: normal; white-space: nowrap;">`;
+            
+            // Herefter animerer vi hvert bogstav præcis som før
+            word.split('').forEach(char => {
+                wordHtml += `<span style="animation-delay: ${charIndex * 0.05}s">${char}</span>`;
+                charIndex++;
+            });
+            
+            wordHtml += `</i>`;
+            charIndex++; // Tæller op for selve mellemrummet, så bølge-rytmen ikke bliver ødelagt
+            return wordHtml;
+        }).join(' '); // Sætter ordene sammen igen med et rigtigt mellemrum
 
         const osrsEffects = ['osrs-wave', 'osrs-flash1', 'osrs-glow1', 'osrs-shake'];
         let currentEffect = 0;
