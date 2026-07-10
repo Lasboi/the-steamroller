@@ -58,12 +58,23 @@ body {
 
 /* --- Typografi --- */
 h1 {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px; /* Skaber lidt luft mellem logo og tekst */
     color: #ffffff;
     font-size: 3.5rem;
     text-transform: uppercase;
     letter-spacing: 2px;
     margin-bottom: 5px;
     text-shadow: 0 4px 10px rgba(0,0,0,0.5);
+}
+
+.main-logo {
+    height: 65px; /* Passer ca. med højen på din h1 tekst */
+    width: auto;
+    /* Giver logoet lidt dybde, så det blender ind med teksten */
+    filter: drop-shadow(0 4px 10px rgba(0,0,0,0.5)); 
 }
 
 /* --- OSRS TEXT EFFECTS --- */
@@ -243,8 +254,15 @@ h1 {
    RESPONSIVT DESIGN (MOBIL & TABLET)
    ========================================= */
 @media (max-width: 768px) {
-    h1 { font-size: 2.2rem; margin-top: 10px; }
-    .subtitle { font-size: 1.1rem; }
+    h1 { 
+        font-size: 2.2rem; 
+        margin-top: 10px; 
+        gap: 12px; /* Lidt mindre mellemrum på mobilen */
+    }
+    
+    .main-logo { 
+        height: 40px; /* Skalerer logoet ned, så det passer til den mindre tekst */
+    }
     
     .top-bar { padding: 10px; margin-bottom: 10px; }
     #logout-btn, #restart-btn { padding: 8px 12px; font-size: 12px; }
