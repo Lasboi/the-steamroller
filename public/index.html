@@ -198,12 +198,33 @@
                         errorEl.innerText = data.error;
                         errorEl.style.display = 'block';
                     } else {
-                        currentSearchSteamId = data.id; // Gem ID til spil-kaldet senere
+                        currentSearchSteamId = data.id; 
                         showAppSection(data);
                         
-                        // Laver Logout om til Exit, fordi vi ikke har en rigtig log-ind session
-                        document.getElementById('logout-btn').innerText = 'EXIT';
-                        document.getElementById('logout-btn').href = '/'; 
+                        // Vi laver knappen om til en lækker NEW SEARCH knap
+                        const logoutBtn = document.getElementById('logout-btn');
+                        logoutBtn.innerHTML = '<i class="fa-solid fa-rotate-left"></i> NEW SEARCH';
+                        logoutBtn.href = '#'; 
+                        
+                        // Her bygger vi lyn-tilbage funktionen
+                        logoutBtn.onclick = (e) => {
+                            e.preventDefault(); // Forhindrer browseren i at rulle dumt op
+                            
+                            // Nulstil hjulet og appen i baggrunden, hvis de var nået at trykke "Fetch"
+                            document.getElementById('restart-btn').click(); 
+                            
+                            // Skift lynhurtigt tilbage til startskærmen
+                            document.getElementById('app-section').style.display = 'none';
+                            document.getElementById('login-section').style.display = 'block';
+                            
+                            // Skjul knappen og tøm søgefeltet klar til næste søgning
+                            logoutBtn.style.display = 'none';
+                            document.getElementById('steam-search-input').value = '';
+                            currentSearchSteamId = null;
+                            
+                            // Fjern funktionen igen, så det ikke driller et rigtigt Steam-login
+                            logoutBtn.onclick = null;
+                        };
                     }
                 })
                 .catch(err => {
