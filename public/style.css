@@ -58,6 +58,10 @@ body {
 
 /* --- Typografi --- */
 h1 {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
     color: #ffffff;
     font-size: 3.5rem;
     text-transform: uppercase;
@@ -67,11 +71,9 @@ h1 {
 }
 
 .main-logo {
-    display: block;
-    width: 250px; /* Her har jeg gjort det MEGET større. Du kan ændre tallet hvis det skal være endnu vildere! */
-    height: auto;
-    margin: 0 auto 15px auto; /* Centrerer logoet i midten og giver lidt luft ned til teksten */
-    filter: drop-shadow(0 4px 15px rgba(0,0,0,0.5)); 
+    height: 90px; /* Betydeligt større end vores første forsøg */
+    width: auto;
+    filter: drop-shadow(0 4px 10px rgba(0,0,0,0.5)); 
 }
 
 /* --- OSRS TEXT EFFECTS --- */
@@ -254,11 +256,11 @@ h1 {
     h1 { 
         font-size: 2.2rem; 
         margin-top: 10px; 
+        gap: 15px; 
     }
     
     .main-logo { 
-        width: 150px; /* Stadig stort, men passer perfekt til en mobilskærm */
-        margin-bottom: 10px;
+        height: 55px; /* Skruet op fra 40px, så det også er tydeligere på mobilen */
     }
     
     .top-bar { padding: 10px; margin-bottom: 10px; }
